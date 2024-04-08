@@ -134,7 +134,7 @@ void burbuja(int arr[], int start,int end) {
 // Función de ordenamiento Merge Sort
 void mergeSort(int arr[], int l, int r, int *n,int *left,char **mapeo) {
     int status;
-    if (l < r && *n/100<7) {
+    if (l < r) {
         // printf("-%d-\n",*n);
         // Crear memoria compartida para *n
         *n=*n+100;
@@ -155,36 +155,45 @@ void mergeSort(int arr[], int l, int r, int *n,int *left,char **mapeo) {
         free(pruebas);
         mapeo[*n/100-1][j]='\0';
         printf("\n");
-        sleep(0.5);
+        // sleep(0.5);
         while(*left){}
         *left=!*left;
-        sleep(0.5);
+        // sleep(0.5);
         // Crear proceso hijo para ordenar la mitad izquierda del arreglo
-        pid_t left_child = fork();
-        if (left_child == 0) { // Proceso hijo
-            *left=1;
-            mergeSort(arr, l, mid,n,left,mapeo);
-            exit(EXIT_SUCCESS);
-        }
-        // Proceso padre
-        // Crear proceso hijo para ordenar la mitad derecha del arreglo
-        pid_t right_child = fork();
-        if (right_child == 0) { // Proceso hijo
-            usleep(1);
+        printf("num = %d",num_p);
+        if(num_p/100>7) {
             *left=0;
+            printf("--------------------sera que funciona--------------------\n");
+            mergeSort(arr, l, mid,n,left,mapeo);
             mergeSort(arr, mid + 1, r,n,left,mapeo);
-            exit(EXIT_SUCCESS);
         }
-        // Proceso padre
-        // Esperar a que ambos hijos terminen
-        waitpid(left_child, &status, 0);
-        waitpid(right_child, &status, 0);
-        // printf("|%d|\t",*n);
-        // Fusionar los dos sub-arreglos ordenados
+        else {
+            pid_t left_child = fork();
+            if (left_child == 0) { // Proceso hijo
+                *left=1;
+                mergeSort(arr, l, mid,n,left,mapeo);
+                exit(EXIT_SUCCESS);
+            }
+            // Proceso padre
+            // Crear proceso hijo para ordenar la mitad derecha del arreglo
+            pid_t right_child = fork();
+            if (right_child == 0) { // Proceso hijo
+                usleep(1);
+                *left=0;
+                mergeSort(arr, mid + 1, r,n,left,mapeo);
+                exit(EXIT_SUCCESS);
+            }
+            // Proceso padre
+            // Esperar a que ambos hijos terminen
+            waitpid(left_child, &status, 0);
+            waitpid(right_child, &status, 0);
+        }
+        
         char* izq = stringArray(arr,l,mid);
         char* der = stringArray(arr,mid+1,r);
-        // printf("|%2d|\t",*n/100);
-        // imprimir(arr,l,r,mid);
+
+        // printf("|%d|\t",*n);
+        // Fusionar los dos sub-arreglos ordenados
 
         // printf("--------------------------------------------\n");
         merge(arr, l, mid, r);
@@ -202,10 +211,6 @@ void mergeSort(int arr[], int l, int r, int *n,int *left,char **mapeo) {
         // munmap(der, sizeof(char)*((mid+1 - r) * 2 + 4));
         sleep(0.1);
     }
-    else if(l < r && *n/100>=7) {
-        burbuja(arr,l,r+1);
-    }
-    *left=0;
 }
 
 
