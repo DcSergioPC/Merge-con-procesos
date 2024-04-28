@@ -69,3 +69,11 @@ proceso 0
  
  proceso 0: lista izquierda {1,3,4,4,5,7,8,9}, lista derecha {4,5,6,7,8,8,9,9} =>
 {1,3,4,4,4,5,5,6,7,7,8,8,8,9,9,9}
+
+
+
+
+Para compilarlo gcc -pthread -lm  -o exercise1 exercise1_v2
+
+
+./exercise1_v2 7 5,4,8,9,3,1,4,7,8,9,5,4,8,7,9,6

@@ -6,6 +6,8 @@
 #include <bits/mman-linux.h>
 #include <fcntl.h>
 #include <semaphore.h>
+#include <math.h>
+#include <string.h>
 //Solo en UNIX Linux
 #define MAX_SIZE 100
 // static int arr[] = {5,4,8,9,3,1,4,7,8,9,5,4,8,7,9,6};
@@ -241,7 +243,66 @@ void mergeSort(int arr[], int l, int r, int *n,int *left,int fd[],sem_t *sem, in
 }
 
 
-int main() {
+void print_heap(int **heap, int n) {
+    int height = log2(n) + 1;
+    int k = 0;
+    int rotar = 1;
+    for (int level = 0; level < height-1; level++) {
+        int num_nodes = pow(2, level);
+
+        // Imprimir espacios antes de los nodos
+        int ant = k;
+        int spaces_before = (int)(pow(2, height - level - 1) - 1)/2;
+        for (int i = 0; i < spaces_before; i++) {
+            printf("    ");
+        }
+
+        // Imprimir nodos en este nivel
+        for (int i = 0; i < num_nodes && k < n; i++, k++) {
+            if(k!=0){
+                if(rotar){
+                    printf("     ");
+                }else{
+                    printf("   \\ ");
+                }
+                rotar=!rotar;
+            }else{
+                continue;
+            }
+
+            // Imprimir espacios entre los nodos
+            int spaces_between = (int)pow(2, height - level) - 1;
+            for (int j = 0; j < spaces_between; j++) {
+                if(!rotar && j==0)
+                    printf("/    ");
+                else
+                    printf("     ");
+            }
+        }
+        printf("\n");
+
+        for (int i = 0; i < spaces_before; i++) {
+            printf("    ");
+        }
+        k=ant;
+        // Imprimir nodos en este nivel
+        for (int i = 0; i < num_nodes && k < n; i++, k++) {
+                int jj = 0;
+                for (jj = 1; jj < heap[k][0]; jj++) {
+                    printf("%d,",heap[k][jj]);
+                }
+                printf("%d",heap[k][jj]);
+            // Imprimir espacios entre los nodos
+            int spaces_between = (int)pow(2, height - level) - 1;
+            for (int j = 0; j < spaces_between; j++) {
+                printf("    ");
+            }
+        }
+        printf("\n");
+    }
+}
+
+int main(int argc, char *argv[]) {
     int n = 16;
     char **mapeo = (char**)mmap(NULL, sizeof(char*)*7, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     for(int i=0;i<7;i++){
@@ -255,11 +316,18 @@ int main() {
 
     
     int *arr = (int*)mmap(NULL, sizeof(int)*16, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-    int next[] = {5,4,8,9,3,1,4,7,8,9,5,4,8,7,9,6};
-    for(int i=0; i<16;i++){
-        arr[i]=next[i];
-    }
+     // Obtener el primer token
+    char *token = strtok(argv[2], ",");
+    int i=0;
+    // Recorrer los tokens restantes
+    while (token != NULL) {
+        // Convertir el token a entero y almacenarlo en el array
+        arr[i] = atoi(token);
+        i++;
 
+        // Obtener el siguiente token
+        token = strtok(NULL, ",");
+    }
 
     sem_t *sem;
     char *sem_name = "/mi_semaforo";
@@ -271,13 +339,14 @@ int main() {
         exit(EXIT_FAILURE);
     }
     int fd[2];
-    int nproc = 7;
+    int nproc = atoi(argv[1]);
     pipe(fd);
     // Llamar a la función de ordenamiento Merge Sort
     mergeSort(arr, 0, n - 1,number,left,fd,sem,nproc);
     int lenght = 0;
     int newArr[50];
-    printf("=========================Mapeos===========================\n");
+
+
     int **map = (int**)malloc(sizeof(int*)*nproc);
     for(int i=0;i<nproc;i++){
         if(read(fd[0],&lenght,sizeof(int))<0){
@@ -290,6 +359,12 @@ int main() {
             map[i][j]=newArr[j-1];
         }
     }
+
+    printf("=========================Esquema de Arbol===========================\n");
+    int test[] = {1,2,3,4,5,6,7,8,9,1,2,3,4,5,6};
+    print_heap(map, 15);
+
+    printf("=========================Mapeos===========================\n");
     for(int i=0;i<nproc;i++){
         printf("|%2d|\t[",i);
         int j;
@@ -343,7 +418,7 @@ int main() {
         // printf("\n");
     }
     printf("=======================================Procesamiento=======================================\n");
-    for(int i=0;i<nproc;i++){
+    for(int i=0;i<nproc;i++) {
         printf("|%2d|\t[",i);
         int j;
         for (j = 1; j < izq[i][0]; j++) {
