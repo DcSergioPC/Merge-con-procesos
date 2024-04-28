@@ -63,6 +63,14 @@ void merge(int arr[], int l, int m, int r)
     }
 }
 
+
+void printaArray(int *arr,int start,int end){
+    printf("{");
+    for (int i = start; i < end; i++) {
+        printf("%d,",arr[i]);
+    }
+    printf("%d}",arr[end]);
+}
 void imprimir(int *arr, int l, int r,int mid){
     printaArray(arr,l,r);
 
@@ -98,14 +106,6 @@ void printProcess(int *arr, int l, int r, int mid,char* izq, char* der){
     // printaArray(arr,mid+1,r);
     printf("%s",der);
     printf("\n");
-}
-
-void printaArray(int arr[],int start,int end){
-    printf("{");
-    for (int i = start; i < end; i++) {
-        printf("%d,",arr[i]);
-    }
-    printf("%d}",arr[end]);
 }
 
 char *stringArray(int *arr,int start,int end){
@@ -328,6 +328,7 @@ int main(int argc, char *argv[]) {
         // Obtener el siguiente token
         token = strtok(NULL, ",");
     }
+    int lenghtArg = i-1;
 
     sem_t *sem;
     char *sem_name = "/mi_semaforo";
@@ -361,8 +362,7 @@ int main(int argc, char *argv[]) {
     }
 
     printf("=========================Esquema de Arbol===========================\n");
-    int test[] = {1,2,3,4,5,6,7,8,9,1,2,3,4,5,6};
-    print_heap(map, 15);
+    print_heap(map, lenghtArg);
 
     printf("=========================Mapeos===========================\n");
     for(int i=0;i<nproc;i++){
